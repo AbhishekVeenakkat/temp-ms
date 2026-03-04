@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import VideoHero from '../components/VideoHero';
 import Hero from '../components/Hero';
 import InfoCards from '../components/InfoCards';
+import MediaCarousel from '../components/MediaCarousel';
+import FeedCarousel from '../components/FeedCarousel';
 import AboutSection from '../components/AboutSection';
 import HistorySection from '../components/HistorySection';
 import DoctorsSection from '../components/DoctorsSection';
@@ -38,6 +40,8 @@ function Home() {
             <VideoHero />
             <Hero onNavigate={scrollToSection} />
             <InfoCards />
+            <MediaCarousel />
+            <FeedCarousel />
             <AboutSection />
             <HistorySection />
             <DoctorsSection />

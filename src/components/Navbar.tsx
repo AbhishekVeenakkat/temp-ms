@@ -116,8 +116,7 @@ export default function Navbar({ onNavigate }: NavbarProps) {
         <nav className={`navbar ${isGlass ? 'navbar--glass' : ''}`}>
             <div className="navbar__inner">
                 <Link to="/" className="navbar__logo" onClick={() => { setMenuOpen(false); setMoreOpen(false); setSocialOpen(false); }}>
-                    <span className="navbar__logo-name">Manassanthi</span>
-                    <span className="navbar__logo-tagline">Hospitals</span>
+                    <img src="/manassanthi_logo.svg" alt="Manassanthi Hospitals" className="navbar__logo-image" />
                 </Link>
 
                 <ul className="navbar__links">
