@@ -73,14 +73,20 @@ const Media = () => {
                         <div key={item.id} className="media-card" onClick={() => setSelectedItem(item)}>
                             <div className="media-card__content">
                                 {item.type === 'video' ? (
-                                    <div className="relative w-full h-full">
-                                        <video src={item.url} className="media-card__img" muted />
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group hover:bg-black/40 transition-colors cursor-pointer">
-                                            <div className="bg-white/20 backdrop-blur-md p-3 rounded-full">
-                                                <Play className="text-white fill-white" size={24} />
-                                            </div>
+                                    <div style={{
+                                    }}>
+                                         <video src={item.url} className="media-card__img" style={{
+                                            height: "100%"
+                                        }} muted preload="metadata" />
+                                        <Play size={48} color="#ffffff00" fill="#ffffff" style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            pointerEvents: 'none',
+                                        }} />
                                         </div>
-                                    </div>
+                                   
                                 ) : (
                                     <img src={item.url} alt={item.caption} className="media-card__img" />
                                 )}

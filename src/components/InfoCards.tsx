@@ -29,8 +29,8 @@ export default function InfoCards() {
     ];
 
     return (
-        <section className="info-cards">
-            <div className="container">
+        <section className="info-cards" id='info-cards'>
+            <div className="container" style={{marginTop: "50px"}}>
                 <div className="info-cards__grid">
                     {info.map((item, i) => (
                         <div className="info-card" key={i}>

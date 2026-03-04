@@ -50,8 +50,8 @@ export default function Hero({ onNavigate }: HeroProps) {
                         <button className="btn-primary" onClick={() => onNavigate('doctors')}>
                             Meet Our Doctors <ArrowRight size={16} />
                         </button>
-                        <button className="btn-secondary" onClick={() => onNavigate('contact')}>
-                            <Phone size={15} /> Call Us
+                        <button className="btn-secondary" onClick={() => onNavigate('info-cards')}>
+                            <Phone size={15} /> Contact Us
                         </button>
                     </div>
 

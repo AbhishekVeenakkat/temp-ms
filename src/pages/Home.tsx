@@ -5,6 +5,7 @@ import Hero from '../components/Hero';
 import InfoCards from '../components/InfoCards';
 import MediaCarousel from '../components/MediaCarousel';
 import FeedCarousel from '../components/FeedCarousel';
+import BlogCarousel from '../components/BlogCarousel';
 import AboutSection from '../components/AboutSection';
 import HistorySection from '../components/HistorySection';
 import DoctorsSection from '../components/DoctorsSection';
@@ -44,6 +45,7 @@ function Home() {
             <FeedCarousel />
             <AboutSection />
             <HistorySection />
+            <BlogCarousel />
             <DoctorsSection />
             <ServicesSection />
             <FacilitiesSection />

@@ -19,8 +19,8 @@ export default function CtaSection({ onNavigate }: CtaSectionProps) {
                     <button className="btn-light" onClick={() => onNavigate('doctors')}>
                         Meet Our Doctors <ArrowRight size={16} />
                     </button>
-                    <button className="btn-outline-light">
-                        <Phone size={15} /> Call Now
+                    <button className="btn-outline-light" onClick={() => onNavigate('info-cards')}>
+                        <Phone size={15} /> Contact Us
                     </button>
                 </div>
             </div>

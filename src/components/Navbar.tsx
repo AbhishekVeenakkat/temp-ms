@@ -115,7 +115,12 @@ export default function Navbar({ onNavigate }: NavbarProps) {
     return (
         <nav className={`navbar ${isGlass ? 'navbar--glass' : ''}`}>
             <div className="navbar__inner">
-                <Link to="/" className="navbar__logo" onClick={() => { setMenuOpen(false); setMoreOpen(false); setSocialOpen(false); }}>
+                <Link to="/" className="navbar__logo" onClick={() => { 
+                    setMenuOpen(false); 
+                    setMoreOpen(false); 
+                    setSocialOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}>
                     <img src="/manassanthi_logo.svg" alt="Manassanthi Hospitals" className="navbar__logo-image" />
                 </Link>
 

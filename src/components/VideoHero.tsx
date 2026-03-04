@@ -17,20 +17,16 @@ export default function VideoHero() {
                 <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
                 }}>
-                    <h1
+                    <img
+                        src="/manassanthi_logo_white.svg"
+                        alt="Manassanthi"
                         className="reveal-text"
                         style={{
-                            fontFamily: "'Parisienne', cursive",
-                            fontSize: 'clamp(60px, 10vw, 110px)',
-                            lineHeight: 1,
+                            height: 'clamp(60px, 10vw, 100px)',
+                            width: 'auto',
                             margin: '0',
-                            color: 'var(--color-white)',
-                            fontWeight: 400,
-                            textShadow: '0 4px 24px rgba(0,0,0,0.4)'
                         }}
-                    >
-                        Manassanthi
-                    </h1>
+                    />
                     <div
                         className="reveal-text reveal-text--delay"
                         style={{

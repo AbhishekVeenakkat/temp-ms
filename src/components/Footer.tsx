@@ -20,7 +20,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                 <div className="footer__top">
                     {/* Brand */}
                     <div>
-                        <div className="footer__brand-name">Manassanthi Hospitals</div>
+                        <div className="footer__brand-name">Manassanthi Hospital</div>
                         <div className="footer__brand-tag">Compassionate Mental Healthcare</div>
                         <p className="footer__brand-desc">
                             Providing safe, ethical, and evidence-based psychiatric care in a calm
@@ -74,7 +74,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                         <div className="footer__col-title">Contact</div>
                         <div className="footer__contact-item">
                             <MapPin size={16} className="footer__contact-icon" />
-                            <span>Manassanthi Hospitals, Kerala, India</span>
+                            <span>Kaithakunda, Ramanattukara (Airport Road), Kerala, India</span>
                         </div>
                         <div className="footer__contact-item">
                             <Phone size={16} className="footer__contact-icon" />
