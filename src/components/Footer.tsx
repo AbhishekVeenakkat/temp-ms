@@ -1,4 +1,5 @@
-import { Phone, MapPin, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Phone, MapPin, Mail, Instagram, Facebook, Twitter } from 'lucide-react';
 
 interface FooterProps {
     onNavigate: (section: string) => void;
@@ -25,6 +26,17 @@ export default function Footer({ onNavigate }: FooterProps) {
                             Providing safe, ethical, and evidence-based psychiatric care in a calm
                             healing environment — licensed in compliance with the Mental Healthcare Act (MHCA), 2017.
                         </p>
+                        <div className="footer__socials">
+                            <a href="#" className="footer__social-link" aria-label="Instagram">
+                                <Instagram size={18} />
+                            </a>
+                            <a href="#" className="footer__social-link" aria-label="Facebook">
+                                <Facebook size={18} />
+                            </a>
+                            <a href="#" className="footer__social-link" aria-label="Twitter">
+                                <Twitter size={18} />
+                            </a>
+                        </div>
                     </div>
 
                     {/* Navigation */}
@@ -41,14 +53,19 @@ export default function Footer({ onNavigate }: FooterProps) {
                         </ul>
                     </div>
 
-                    {/* Services */}
+                    {/* More Section */}
                     <div>
-                        <div className="footer__col-title">Services</div>
+                        <div className="footer__col-title">More</div>
                         <ul className="footer__links">
-                            {['Outpatient Consultations', 'Inpatient Admission', 'Psychological Therapy',
-                                'De-addiction Services', 'Child Psychiatry', 'Geriatric Mental Health'].map(s => (
-                                    <li key={s}><span className="footer__link">{s}</span></li>
-                                ))}
+                            <li>
+                                <Link to="/media" className="footer__link">Media</Link>
+                            </li>
+                            <li>
+                                <Link to="/feed" className="footer__link">Feed</Link>
+                            </li>
+                            <li>
+                                <Link to="/blog" className="footer__link">Blog</Link>
+                            </li>
                         </ul>
                     </div>
 

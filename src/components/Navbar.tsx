@@ -1,59 +1,86 @@
-import { useState, useEffect } from 'react';
-import { Menu, X, CalendarDays } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, CalendarDays, ChevronDown, Instagram, Facebook, Twitter } from 'lucide-react';
 
 interface NavbarProps {
     onNavigate: (section: string) => void;
 }
 
-const links = [
+const mainLinks = [
     { label: 'About', id: 'about' },
     { label: 'Doctors', id: 'doctors' },
     { label: 'Services', id: 'services' },
-    { label: 'Facilities', id: 'facilities' },
+];
+
+const moreLinks = [
+    { label: 'Facilities', id: 'facilities', isSection: true },
+    { label: 'Media', path: '/media', isSection: false },
+    { label: 'Feed', path: '/feed', isSection: false },
+    { label: 'Blog', path: '/blog', isSection: false },
+];
+
+const socialLinks = [
+    { label: 'Instagram', icon: Instagram, url: '#' },
+    { label: 'Facebook', icon: Facebook, url: '#' },
+    { label: 'X (Twitter)', icon: Twitter, url: '#' },
 ];
 
 export default function Navbar({ onNavigate }: NavbarProps) {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [moreOpen, setMoreOpen] = useState(false);
+    const [socialOpen, setSocialOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
-
     const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
+    const location = useLocation();
+    const moreRef = useRef<HTMLLIElement>(null);
+    const socialRef = useRef<HTMLLIElement>(null);
 
-    // Track simply if we've scrolled past the initial hero video height
+    const isHome = location.pathname === '/';
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+                setMoreOpen(false);
+            }
+            if (socialRef.current && !socialRef.current.contains(event.target as Node)) {
+                setSocialOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // ... scroll and observer logic remain unchanged ...
     useEffect(() => {
         const handleScroll = () => {
-            // Check if we've scrolled down more than 90% of the viewport height
-            // (turning solid slightly before the video completely leaves)
             if (window.scrollY > window.innerHeight * 0.9) {
                 setIsScrolledPastHero(true);
             } else {
                 setIsScrolledPastHero(false);
             }
         };
-
         window.addEventListener('scroll', handleScroll, { passive: true });
-        // Initial check
         handleScroll();
-
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Use IntersectionObserver to track which section is most in view
     useEffect(() => {
-        const sectionIds = ['home', 'welcome', 'history', ...links.map(l => l.id), 'contact'];
-        const observers: IntersectionObserver[] = [];
+        if (!isHome) {
+            setActiveSection('');
+            return;
+        }
 
-        // Track how much of each section is visible
+        const sectionIds = ['home', 'welcome', 'history', 'about', 'doctors', 'services', 'facilities', 'contact'];
+        const observers: IntersectionObserver[] = [];
         const visibleRatios: Record<string, number> = {};
 
         const pickActive = () => {
-            // Pick the section with the highest visibility ratio
             let best = 'home';
             let bestRatio = -1;
             for (const id of sectionIds) {
                 const r = visibleRatios[id] ?? 0;
                 if (r > bestRatio) { bestRatio = r; best = id; }
             }
-            // If the user is on 'welcome' or 'history', highlight 'home' or 'about'
             if (best === 'welcome') setActiveSection('home');
             else if (best === 'history') setActiveSection('about');
             else setActiveSection(best);
@@ -67,7 +94,6 @@ export default function Navbar({ onNavigate }: NavbarProps) {
                     visibleRatios[id] = entry.intersectionRatio;
                     pickActive();
                 },
-                // Fire at many thresholds for smooth updates
                 { threshold: Array.from({ length: 21 }, (_, i) => i / 20) }
             );
             obs.observe(el);
@@ -75,34 +101,126 @@ export default function Navbar({ onNavigate }: NavbarProps) {
         });
 
         return () => observers.forEach(obs => obs.disconnect());
-    }, []);
+    }, [isHome]);
 
     const handleNav = (id: string) => {
         onNavigate(id);
         setMenuOpen(false);
+        setMoreOpen(false);
+        setSocialOpen(false);
     };
 
-    const isGlass = !isScrolledPastHero;
+    const isGlass = isHome && !isScrolledPastHero;
 
     return (
         <nav className={`navbar ${isGlass ? 'navbar--glass' : ''}`}>
             <div className="navbar__inner">
-                <div className="navbar__logo" onClick={() => handleNav('home')} style={{ cursor: 'pointer' }}>
+                <Link to="/" className="navbar__logo" onClick={() => { setMenuOpen(false); setMoreOpen(false); setSocialOpen(false); }}>
                     <span className="navbar__logo-name">Manassanthi</span>
                     <span className="navbar__logo-tagline">Hospitals</span>
-                </div>
+                </Link>
 
                 <ul className="navbar__links">
-                    {links.map(l => (
-                        <li key={l.id}>
-                            <button
-                                className={`navbar__link${activeSection === l.id ? ' navbar__link--active' : ''}`}
-                                onClick={() => handleNav(l.id)}
-                            >
-                                {l.label}
-                            </button>
-                        </li>
-                    ))}
+                    {isHome ? (
+                        <>
+                            {mainLinks.map(l => (
+                                <li key={l.id}>
+                                    <button
+                                        className={`navbar__link${activeSection === l.id ? ' navbar__link--active' : ''}`}
+                                        onClick={() => handleNav(l.id)}
+                                    >
+                                        {l.label}
+                                    </button>
+                                </li>
+                            ))}
+                            <li className="navbar__more-container" ref={socialRef}>
+                                <button
+                                    className={`navbar__link navbar__more-toggle ${socialOpen ? 'navbar__more-toggle--active' : ''}`}
+                                    onClick={() => { setSocialOpen(!socialOpen); setMoreOpen(false); }}
+                                >
+                                    Social <ChevronDown size={14} className={`navbar__more-chevron ${socialOpen ? 'rotated' : ''}`} />
+                                </button>
+                                {socialOpen && (
+                                    <div className="navbar__more-dropdown">
+                                        {socialLinks.map(s => (
+                                            <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="navbar__dropdown-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <s.icon size={16} />
+                                                {s.label}
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+                            </li>
+                            <li className="navbar__more-container" ref={moreRef}>
+                                <button
+                                    className={`navbar__link navbar__more-toggle ${moreOpen ? 'navbar__more-toggle--active' : ''}`}
+                                    onClick={() => { setMoreOpen(!moreOpen); setSocialOpen(false); }}
+                                >
+                                    More <ChevronDown size={14} className={`navbar__more-chevron ${moreOpen ? 'rotated' : ''}`} />
+                                </button>
+
+                                {moreOpen && (
+                                    <div className="navbar__more-dropdown">
+                                        {moreLinks.map(l => (
+                                            l.isSection ? (
+                                                <button
+                                                    key={l.id}
+                                                    className={`navbar__dropdown-link${activeSection === l.id ? ' navbar__dropdown-link--active' : ''}`}
+                                                    onClick={() => handleNav(l.id!)}
+                                                >
+                                                    {l.label}
+                                                </button>
+                                            ) : (
+                                                <Link
+                                                    key={l.path}
+                                                    to={l.path!}
+                                                    className={`navbar__dropdown-link${location.pathname === l.path ? ' navbar__dropdown-link--active' : ''}`}
+                                                    onClick={() => { setMenuOpen(false); setMoreOpen(false); }}
+                                                >
+                                                    {l.label}
+                                                </Link>
+                                            )
+                                        ))}
+                                    </div>
+                                )}
+                            </li>
+                        </>
+                    ) : (
+                        <>
+                            <li>
+                                <Link to="/" className="navbar__link">Home</Link>
+                            </li>
+                            <li className="navbar__more-container" ref={socialRef}>
+                                <button
+                                    className={`navbar__link navbar__more-toggle ${socialOpen ? 'navbar__more-toggle--active' : ''}`}
+                                    onClick={() => { setSocialOpen(!socialOpen); setMoreOpen(false); }}
+                                >
+                                    Social <ChevronDown size={14} className={`navbar__more-chevron ${socialOpen ? 'rotated' : ''}`} />
+                                </button>
+                                {socialOpen && (
+                                    <div className="navbar__more-dropdown">
+                                        {socialLinks.map(s => (
+                                            <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="navbar__dropdown-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <s.icon size={16} />
+                                                {s.label}
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+                            </li>
+                            {moreLinks.filter(l => !l.isSection).map(l => (
+                                <li key={l.path}>
+                                    <Link
+                                        to={l.path!}
+                                        className={`navbar__link${location.pathname === l.path ? ' navbar__link--active' : ''}`}
+                                        onClick={() => { setMenuOpen(false); setMoreOpen(false); }}
+                                    >
+                                        {l.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </>
+                    )}
                 </ul>
 
                 <button
@@ -125,17 +243,52 @@ export default function Navbar({ onNavigate }: NavbarProps) {
             {/* Mobile Menu */}
             {menuOpen && (
                 <div className="navbar__mobile-menu">
-                    {links.map(l => (
+                    {isHome ? (
+                        <button className="navbar__link" onClick={() => handleNav('home')}>Home</button>
+                    ) : (
+                        <Link to="/" className="navbar__link" onClick={() => setMenuOpen(false)}>Home</Link>
+                    )}
+
+                    {mainLinks.map(l => (
                         <button
                             key={l.id}
                             className={`navbar__link${activeSection === l.id ? ' navbar__link--active' : ''}`}
-                            style={{ textAlign: 'left', width: '100%' }}
                             onClick={() => handleNav(l.id)}
                         >
                             {l.label}
                         </button>
                     ))}
-                    <button className="navbar__cta" style={{ marginTop: '8px' }}
+
+                    <div style={{ display: 'flex', gap: '20px', margin: '12px 0' }}>
+                        {socialLinks.map(s => (
+                            <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-muted)' }}>
+                                <s.icon size={20} />
+                            </a>
+                        ))}
+                    </div>
+
+                    {moreLinks.map(l => (
+                        l.isSection ? (
+                            <button
+                                key={l.id}
+                                className={`navbar__link${activeSection === l.id ? ' navbar__link--active' : ''}`}
+                                onClick={() => handleNav(l.id!)}
+                            >
+                                {l.label}
+                            </button>
+                        ) : (
+                            <Link
+                                key={l.path}
+                                to={l.path!}
+                                className={`navbar__link${location.pathname === l.path ? ' navbar__link--active' : ''}`}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                {l.label}
+                            </Link>
+                        )
+                    ))}
+
+                    <button className="navbar__cta" style={{ marginTop: '16px' }}
                         onClick={() => handleNav('contact')}>
                         <CalendarDays size={15} /> Book Appointment
                     </button>
