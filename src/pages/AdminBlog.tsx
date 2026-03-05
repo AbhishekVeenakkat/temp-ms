@@ -44,7 +44,13 @@ const AdminBlog = () => {
             }
             const payload = { title: editingPost?.title, description: editingPost?.description, content: editingPost?.content, photo_url };
             if (editingPost?.id) {
-                const { error } = await supabase.from('blogs').update(payload).eq('id', editingPost.id);
+                // Use RPC to bypass CORS PATCH issues
+                const { error } = await supabase.rpc('update_blog_item', {
+                    item_id: editingPost.id,
+                    new_title: payload.title,
+                    new_description: payload.description,
+                    new_content: payload.content
+                });
                 if (error) throw error;
             } else {
                 const { error } = await supabase.from('blogs').insert(payload);
@@ -137,8 +143,8 @@ const AdminBlog = () => {
                     {/* Header */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Editorial Content</p>
-                            <p style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>Manage articles and health insights.</p>
+                            <p style={{ fontSize: 13, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Editorial Content</p>
+                            <p style={{ fontSize: 15, color: '#64748b', fontWeight: 600 }}>Manage articles and health insights.</p>
                         </div>
                         <button onClick={openNewModal} className="admin-btn admin-btn--primary" style={{ boxShadow: '0 8px 20px rgba(19,56,130,0.12)' }}>
                             <Plus size={18} /><span>Write New Article</span>

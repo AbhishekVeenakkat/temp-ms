@@ -227,13 +227,14 @@ export default function Navbar({ onNavigate }: NavbarProps) {
                     )}
                 </ul>
 
-                <button
+                <Link
+                    to="/book-appointment"
                     className="navbar__cta"
-                    onClick={() => handleNav('contact')}
                     style={{ display: menuOpen ? 'none' : undefined }}
+                    onClick={() => { setMenuOpen(false); setMoreOpen(false); setSocialOpen(false); }}
                 >
                     <CalendarDays size={15} /> Book Appointment
-                </button>
+                </Link>
 
                 <button
                     className="navbar__hamburger"
@@ -292,10 +293,14 @@ export default function Navbar({ onNavigate }: NavbarProps) {
                         )
                     ))}
 
-                    <button className="navbar__cta" style={{ marginTop: '16px' }}
-                        onClick={() => handleNav('contact')}>
+                    <Link 
+                        to="/book-appointment" 
+                        className="navbar__cta" 
+                        style={{ marginTop: '16px' }}
+                        onClick={() => setMenuOpen(false)}
+                    >
                         <CalendarDays size={15} /> Book Appointment
-                    </button>
+                    </Link>
                 </div>
             )}
         </nav>

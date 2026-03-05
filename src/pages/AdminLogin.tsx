@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ChevronRight, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ChevronRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -37,15 +38,41 @@ const AdminLogin = () => {
 
             <div className="w-full max-w-[440px] px-6 relative z-10">
                 <div className="login-card">
-                    <div className="mb-10 text-center">
+                    <div className="text-center" style={{ marginBottom: '40px' }}>
                         <div className="login-icon-box">
-                            <ShieldCheck color="white" size={32} />
+                            <ShieldCheck color="white" size={34} strokeWidth={2.5} />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-[#133882] tracking-tight">Admin Portal</h1>
-                        <p className="text-slate-500 mt-2 font-medium">Please enter your details to sign in</p>
+                        <h1 style={{ 
+                            fontSize: '32px', 
+                            fontWeight: 900, 
+                            color: '#133882', 
+                            letterSpacing: '0.02em',
+                            marginBottom: '8px',
+                            lineHeight: 1
+                        }}>
+                            MANASSANTHI
+                        </h1>
+                        <div style={{
+                            fontSize: '13px',
+                            fontWeight: 700,
+                            color: '#64748b',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.15em',
+                            marginBottom: '12px'
+                        }}>
+                            Admin Portal
+                        </div>
+                        <p style={{ 
+                            fontSize: '14px', 
+                            color: '#64748b',
+                            fontWeight: 500,
+                            lineHeight: 1.5
+                        }}>
+                            Secure access to management dashboard
+                        </p>
                     </div>
 
-                    <form onSubmit={handleLogin} className="space-y-5">
+                    <form onSubmit={handleLogin}>
                         {error && (
                             <div className="login-error">
                                 {error}
@@ -72,13 +99,21 @@ const AdminLogin = () => {
                             <div className="login-input-wrapper">
                                 <Lock className="login-input-icon" size={18} />
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="login-input"
+                                    className="login-input login-input--password"
                                     placeholder="••••••••"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="login-password-toggle"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                         </div>
 
@@ -98,10 +133,6 @@ const AdminLogin = () => {
                         </button>
                     </form>
                 </div>
-
-                <p className="text-center mt-8 text-slate-400 text-sm font-medium">
-                    &copy; {new Date().getFullYear()} Manassanthi Hospitals. All rights reserved.
-                </p>
             </div>
         </div>
     );

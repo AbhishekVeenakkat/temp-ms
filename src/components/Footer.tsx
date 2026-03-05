@@ -58,6 +58,12 @@ export default function Footer({ onNavigate }: FooterProps) {
                         <div className="footer__col-title">More</div>
                         <ul className="footer__links">
                             <li>
+                                <Link to="/book-appointment" className="footer__link">Book Appointment</Link>
+                            </li>
+                            <li>
+                                <Link to="/ask-doctor" className="footer__link">Ask Doctor</Link>
+                            </li>
+                            <li>
                                 <Link to="/media" className="footer__link">Media</Link>
                             </li>
                             <li>

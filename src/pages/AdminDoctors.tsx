@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trash2, Plus, User, Image as ImageIcon, X, Clock, Calendar, MapPin } from 'lucide-react';
+import { Trash2, Plus, User, Image as ImageIcon, X, Clock, Calendar, MapPin, Edit } from 'lucide-react';
 
 interface Doctor {
     id: string;
@@ -25,6 +25,7 @@ const AdminDoctors = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
 
     const [name, setName] = useState('');
     const [qualification, setQualification] = useState('');
@@ -57,6 +58,7 @@ const AdminDoctors = () => {
     };
 
     const openNew = () => {
+        setEditingDoctor(null);
         setName('');
         setQualification('');
         setCaption('');
@@ -68,6 +70,22 @@ const AdminDoctors = () => {
         setTimeEnd('17:00');
         setAdditionalLocations([]);
         setRank(999);
+        setIsModalOpen(true);
+    };
+
+    const openEdit = (doctor: Doctor) => {
+        setEditingDoctor(doctor);
+        setName(doctor.name);
+        setQualification(doctor.qualification || '');
+        setCaption(doctor.caption || '');
+        setDescription(doctor.description || '');
+        setImageFile(null);
+        setAvailableDays(doctor.available_days || []);
+        setAvailabilityNote(doctor.availability_note || '');
+        setTimeStart(doctor.time_start || '09:00');
+        setTimeEnd(doctor.time_end || '17:00');
+        setAdditionalLocations(doctor.additional_locations || []);
+        setRank(doctor.rank || 999);
         setIsModalOpen(true);
     };
 
@@ -126,12 +144,32 @@ const AdminDoctors = () => {
                 payload.photo_url = photoUrl;
             }
 
-            const { error } = await supabase.from('doctors').insert(payload);
-            if (error) throw error;
+            if (editingDoctor) {
+                // Update existing doctor using RPC to bypass CORS PATCH issues
+                const { error } = await supabase.rpc('update_doctor', {
+                    doctor_id: editingDoctor.id,
+                    new_name: name,
+                    new_qualification: qualification || null,
+                    new_caption: caption || null,
+                    new_description: description || null,
+                    new_photo_url: photoUrl || editingDoctor.photo_url,
+                    new_available_days: availableDays,
+                    new_availability_note: availabilityNote || null,
+                    new_time_start: timeStart,
+                    new_time_end: timeEnd,
+                    new_additional_locations: JSON.parse(JSON.stringify(additionalLocations)),
+                    new_rank: rank || 999
+                });
+                if (error) throw error;
+            } else {
+                // Insert new doctor
+                const { error } = await supabase.from('doctors').insert(payload);
+                if (error) throw error;
+            }
 
             closeModal();
             fetchDoctors();
-            alert('Doctor saved successfully!');
+            alert(editingDoctor ? 'Doctor updated successfully!' : 'Doctor saved successfully!');
         } catch (error: any) {
             console.error('Error saving doctor:', error);
             alert('Error: ' + (error.message || 'Failed to save doctor. Please try again.'));
@@ -211,6 +249,10 @@ const AdminDoctors = () => {
                             </div>
 
                             <div style={{ display: 'flex', gap: 6 }}>
+                                <button onClick={() => openEdit(doctor)} className="admin-btn admin-btn--ghost" style={{ flex: 1, justifyContent: 'center', padding: '8px 12px', fontSize: 12 }}>
+                                    <Edit size={14} />
+                                    <span>Edit</span>
+                                </button>
                                 <button onClick={() => handleDelete(doctor.id)} className="admin-btn admin-btn--danger" style={{ flex: 1, justifyContent: 'center', padding: '8px 12px', fontSize: 12 }}>
                                     <Trash2 size={14} />
                                     <span>Delete</span>
@@ -234,10 +276,10 @@ const AdminDoctors = () => {
                                     </div>
                                     <div>
                                         <p className="admin-modal-header__title">
-                                            Add New Doctor
+                                            {editingDoctor ? 'Edit Doctor' : 'Add New Doctor'}
                                         </p>
                                         <p className="admin-modal-header__subtitle">
-                                            Add a new doctor to your team
+                                            {editingDoctor ? 'Update doctor information' : 'Add a new doctor to your team'}
                                         </p>
                                     </div>
                                 </div>

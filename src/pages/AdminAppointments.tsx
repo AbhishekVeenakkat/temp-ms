@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trash2, Calendar as CalendarIcon, X, User, Phone, Clock, FileText, Eye, CheckCircle } from 'lucide-react';
+import { Trash2, Calendar as CalendarIcon, X, User, Phone, Clock, FileText, Eye, CheckCircle, Filter } from 'lucide-react';
 
 interface Appointment {
     id: string;
@@ -15,14 +15,73 @@ interface Appointment {
     admin_notes: string | null;
 }
 
+interface Doctor {
+    id: string;
+    name: string;
+}
+
 const AdminAppointments = () => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
+    const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [updating, setUpdating] = useState(false);
+    
+    // Filter states
+    const [filterDoctor, setFilterDoctor] = useState<string>('all');
+    const [filterStatus, setFilterStatus] = useState<string>('all');
+    const [filterDateFrom, setFilterDateFrom] = useState<string>('');
+    const [filterDateTo, setFilterDateTo] = useState<string>('');
 
-    useEffect(() => { fetchAppointments(); }, []);
+    useEffect(() => { 
+        fetchAppointments();
+        fetchDoctors();
+    }, []);
+
+    useEffect(() => {
+        applyFilters();
+    }, [appointments, filterDoctor, filterStatus, filterDateFrom, filterDateTo]);
+
+    const fetchDoctors = async () => {
+        const { data, error } = await supabase
+            .from('doctors')
+            .select('id, name')
+            .order('name');
+        if (!error && data) setDoctors(data);
+    };
+
+    const applyFilters = () => {
+        let filtered = [...appointments];
+
+        // Filter by doctor
+        if (filterDoctor !== 'all') {
+            filtered = filtered.filter(apt => apt.doctor_id === filterDoctor);
+        }
+
+        // Filter by status
+        if (filterStatus !== 'all') {
+            filtered = filtered.filter(apt => apt.status === filterStatus);
+        }
+
+        // Filter by date range
+        if (filterDateFrom) {
+            filtered = filtered.filter(apt => apt.appointment_date >= filterDateFrom);
+        }
+        if (filterDateTo) {
+            filtered = filtered.filter(apt => apt.appointment_date <= filterDateTo);
+        }
+
+        setFilteredAppointments(filtered);
+    };
+
+    const clearFilters = () => {
+        setFilterDoctor('all');
+        setFilterStatus('all');
+        setFilterDateFrom('');
+        setFilterDateTo('');
+    };
 
     const fetchAppointments = async () => {
         setLoading(true);
@@ -59,29 +118,23 @@ const AdminAppointments = () => {
                 return;
             }
 
-            console.log('Attempting to update appointment:', { id, newStatus });
+            console.log('Attempting to update appointment via RPC:', { id, newStatus });
             
-            const { data, error } = await supabase
-                .from('appointments')
-                .update({ status: newStatus })
-                .eq('id', id)
-                .select();
+            // Use RPC function to bypass CORS PATCH issues
+            const { data, error } = await supabase.rpc('update_appointment_status', {
+                appointment_id: id,
+                new_status: newStatus
+            });
             
             if (error) {
-                console.error('Supabase error details:', {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code
-                });
+                console.error('Supabase RPC error:', error);
                 alert(`Failed to update status: ${error.message}`);
             } else {
-                console.log('Status updated successfully:', data);
+                console.log('Status updated successfully via RPC:', data);
                 await fetchAppointments();
                 if (selectedAppointment?.id === id) {
                     setSelectedAppointment({ ...selectedAppointment, status: newStatus });
                 }
-                alert('Appointment status updated to ' + newStatus);
             }
         } catch (err: any) {
             console.error('Unexpected error:', err);
@@ -114,11 +167,133 @@ const AdminAppointments = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Appointment Requests</p>
-                    <p style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>
-                        {appointments.length} {appointments.length === 1 ? 'request' : 'requests'} pending
+                    <p style={{ fontSize: 13, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Appointment Requests</p>
+                    <p style={{ fontSize: 15, color: '#64748b', fontWeight: 600 }}>
+                        {filteredAppointments.length} of {appointments.length} {appointments.length === 1 ? 'request' : 'requests'}
                     </p>
                 </div>
+            </div>
+
+            {/* Filters */}
+            <div className="admin-card" style={{ padding: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                    <Filter size={18} color="#133882" />
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: '#133882', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Filter Appointments
+                    </h3>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                            Doctor
+                        </label>
+                        <select
+                            value={filterDoctor}
+                            onChange={(e) => setFilterDoctor(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                border: '2px solid #e2e8f0',
+                                borderRadius: '12px',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#334155',
+                                background: '#f8fafc',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <option value="all">All Doctors</option>
+                            {doctors.map(doctor => (
+                                <option key={doctor.id} value={doctor.id}>{doctor.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                            Status
+                        </label>
+                        <select
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                border: '2px solid #e2e8f0',
+                                borderRadius: '12px',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#334155',
+                                background: '#f8fafc',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <option value="all">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                            From Date
+                        </label>
+                        <input
+                            type="date"
+                            value={filterDateFrom}
+                            onChange={(e) => setFilterDateFrom(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                border: '2px solid #e2e8f0',
+                                borderRadius: '12px',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#334155',
+                                background: '#f8fafc',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                            To Date
+                        </label>
+                        <input
+                            type="date"
+                            value={filterDateTo}
+                            onChange={(e) => setFilterDateTo(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '10px 14px',
+                                border: '2px solid #e2e8f0',
+                                borderRadius: '12px',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#334155',
+                                background: '#f8fafc',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        />
+                    </div>
+                </div>
+
+                {(filterDoctor !== 'all' || filterStatus !== 'all' || filterDateFrom || filterDateTo) && (
+                    <button
+                        onClick={clearFilters}
+                        className="admin-btn admin-btn--ghost"
+                        style={{ marginTop: 16, fontSize: 13 }}
+                    >
+                        <X size={14} />
+                        <span>Clear Filters</span>
+                    </button>
+                )}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -128,16 +303,20 @@ const AdminAppointments = () => {
                             <div key={i} style={{ height: 90, background: '#f1f5f9', borderRadius: 16 }} />
                         ))}
                     </div>
-                ) : appointments.length === 0 ? (
+                ) : filteredAppointments.length === 0 ? (
                     <div className="admin-card" style={{ padding: 60, textAlign: 'center' }}>
                         <div style={{ width: 80, height: 80, margin: '0 auto 20px', background: '#f1f5f9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <CalendarIcon size={32} color="#94a3b8" />
                         </div>
-                        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#64748b', marginBottom: 8 }}>No Appointments Yet</h3>
-                        <p style={{ fontSize: 14, color: '#94a3b8' }}>Appointment requests will appear here.</p>
+                        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#64748b', marginBottom: 8 }}>
+                            {appointments.length === 0 ? 'No Appointments Yet' : 'No Matching Appointments'}
+                        </h3>
+                        <p style={{ fontSize: 14, color: '#94a3b8' }}>
+                            {appointments.length === 0 ? 'Appointment requests will appear here.' : 'Try adjusting your filters.'}
+                        </p>
                     </div>
                 ) : (
-                    appointments.map(appointment => {
+                    filteredAppointments.map(appointment => {
                         return (
                             <div 
                                 key={appointment.id} 

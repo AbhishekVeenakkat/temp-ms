@@ -96,7 +96,14 @@ const AdminFeed = () => {
             };
 
             if (editingId) {
-                const { error } = await supabase.from('feed').update(payload).eq('id', editingId);
+                // Use RPC to bypass CORS PATCH issues
+                const { error } = await supabase.rpc('update_feed_item', {
+                    item_id: editingId,
+                    new_description: payload.description,
+                    new_youtube_link: payload.youtube_link,
+                    new_article_link: payload.article_link,
+                    new_content: payload.content
+                });
                 if (error) throw error;
             } else {
                 const { error } = await supabase.from('feed').insert({ ...payload, image_url: imageUrl });
@@ -134,7 +141,7 @@ const AdminFeed = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Recent Posts</p>
+                <p style={{ fontSize: 13, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Recent Posts</p>
                 {loading ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                         {[1, 2].map(i => (<div key={i} style={{ height: 110, background: '#f1f5f9', borderRadius: 20 }} />))}

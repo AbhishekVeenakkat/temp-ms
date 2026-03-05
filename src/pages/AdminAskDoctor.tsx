@@ -51,8 +51,8 @@ const AdminAskDoctor = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Patient Inquiries</p>
-                    <p style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>
+                    <p style={{ fontSize: 13, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Patient Inquiries</p>
+                    <p style={{ fontSize: 15, color: '#64748b', fontWeight: 600 }}>
                         {entries.length} {entries.length === 1 ? 'question' : 'questions'} submitted
                     </p>
                 </div>

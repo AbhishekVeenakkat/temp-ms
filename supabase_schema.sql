@@ -173,3 +173,286 @@ CREATE POLICY "Admin Update Media" ON storage.objects FOR UPDATE
 
 CREATE POLICY "Admin Delete Media" ON storage.objects FOR DELETE 
     USING (bucket_id = 'media' AND auth.role() = 'authenticated');
+
+-- ============================================================
+-- POSTGRESQL FUNCTIONS (to bypass CORS issues with PATCH)
+-- ============================================================
+
+-- Function to update appointment status
+CREATE OR REPLACE FUNCTION update_appointment_status(
+    appointment_id uuid,
+    new_status text
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    updated_row appointments%ROWTYPE;
+BEGIN
+    IF auth.role() != 'authenticated' THEN
+        RAISE EXCEPTION 'Not authorized';
+    END IF;
+
+    UPDATE appointments
+    SET status = new_status
+    WHERE id = appointment_id
+    RETURNING * INTO updated_row;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Appointment not found';
+    END IF;
+
+    RETURN row_to_json(updated_row);
+END;
+$$;
+
+-- Function to update gallery items
+CREATE OR REPLACE FUNCTION update_gallery_item(
+    item_id uuid,
+    new_description text DEFAULT NULL,
+    new_caption text DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    updated_row gallery%ROWTYPE;
+BEGIN
+    IF auth.role() != 'authenticated' THEN
+        RAISE EXCEPTION 'Not authorized';
+    END IF;
+
+    UPDATE gallery
+    SET 
+        description = COALESCE(new_description, description),
+        caption = COALESCE(new_caption, caption)
+    WHERE id = item_id
+    RETURNING * INTO updated_row;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Gallery item not found';
+    END IF;
+
+    RETURN row_to_json(updated_row);
+END;
+$$;
+
+-- Function to update feed items
+CREATE OR REPLACE FUNCTION update_feed_item(
+    item_id uuid,
+    new_description text DEFAULT NULL,
+    new_youtube_link text DEFAULT NULL,
+    new_article_link text DEFAULT NULL,
+    new_content text DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    updated_row feed%ROWTYPE;
+BEGIN
+    IF auth.role() != 'authenticated' THEN
+        RAISE EXCEPTION 'Not authorized';
+    END IF;
+
+    UPDATE feed
+    SET 
+        description = COALESCE(new_description, description),
+        youtube_link = new_youtube_link,
+        article_link = new_article_link,
+        content = COALESCE(new_content, content)
+    WHERE id = item_id
+    RETURNING * INTO updated_row;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Feed item not found';
+    END IF;
+
+    RETURN row_to_json(updated_row);
+END;
+$$;
+
+-- Function to update blog items
+CREATE OR REPLACE FUNCTION update_blog_item(
+    item_id uuid,
+    new_title text DEFAULT NULL,
+    new_description text DEFAULT NULL,
+    new_content text DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    updated_row blogs%ROWTYPE;
+BEGIN
+    IF auth.role() != 'authenticated' THEN
+        RAISE EXCEPTION 'Not authorized';
+    END IF;
+
+    UPDATE blogs
+    SET 
+        title = COALESCE(new_title, title),
+        description = new_description,
+        content = new_content
+    WHERE id = item_id
+    RETURNING * INTO updated_row;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Blog item not found';
+    END IF;
+
+    RETURN row_to_json(updated_row);
+END;
+$$;
+
+-- Function to update doctor details
+CREATE OR REPLACE FUNCTION update_doctor(
+    doctor_id uuid,
+    new_name text DEFAULT NULL,
+    new_qualification text DEFAULT NULL,
+    new_caption text DEFAULT NULL,
+    new_description text DEFAULT NULL,
+    new_photo_url text DEFAULT NULL,
+    new_available_days text[] DEFAULT NULL,
+    new_availability_note text DEFAULT NULL,
+    new_time_start text DEFAULT NULL,
+    new_time_end text DEFAULT NULL,
+    new_additional_locations jsonb DEFAULT NULL,
+    new_rank integer DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    updated_row doctors%ROWTYPE;
+BEGIN
+    IF auth.role() != 'authenticated' THEN
+        RAISE EXCEPTION 'Not authorized';
+    END IF;
+
+    UPDATE doctors
+    SET 
+        name = COALESCE(new_name, name),
+        qualification = COALESCE(new_qualification, qualification),
+        caption = COALESCE(new_caption, caption),
+        description = COALESCE(new_description, description),
+        photo_url = COALESCE(new_photo_url, photo_url),
+        available_days = COALESCE(new_available_days, available_days),
+        availability_note = COALESCE(new_availability_note, availability_note),
+        time_start = COALESCE(new_time_start, time_start),
+        time_end = COALESCE(new_time_end, time_end),
+        additional_locations = COALESCE(new_additional_locations, additional_locations),
+        rank = COALESCE(new_rank, rank)
+    WHERE id = doctor_id
+    RETURNING * INTO updated_row;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Doctor not found';
+    END IF;
+
+    RETURN row_to_json(updated_row);
+END;
+$$;
+
+-- Function to update ask_doctor status and notes
+CREATE OR REPLACE FUNCTION update_ask_doctor_entry(
+    entry_id uuid,
+    new_status text DEFAULT NULL,
+    new_admin_notes text DEFAULT NULL
+)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    updated_row ask_doctor%ROWTYPE;
+BEGIN
+    IF auth.role() != 'authenticated' THEN
+        RAISE EXCEPTION 'Not authorized';
+    END IF;
+
+    UPDATE ask_doctor
+    SET 
+        status = COALESCE(new_status, status),
+        admin_notes = new_admin_notes
+    WHERE id = entry_id
+    RETURNING * INTO updated_row;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Ask doctor entry not found';
+    END IF;
+
+    RETURN row_to_json(updated_row);
+END;
+$$;
+
+-- ============================================================
+-- USER ROLES SYSTEM (Optional)
+-- ============================================================
+
+-- Create user_roles table for role-based access control
+CREATE TABLE IF NOT EXISTS user_roles (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+    role text NOT NULL CHECK (role IN ('admin', 'appointments_only', 'viewer')),
+    created_at timestamptz DEFAULT now(),
+    UNIQUE(user_id)
+);
+
+-- Enable RLS
+ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
+
+-- Only authenticated users can read their own role
+CREATE POLICY "Users can read own role" ON user_roles
+    FOR SELECT
+    TO authenticated
+    USING (auth.uid() = user_id);
+
+-- Function to get current user's role
+CREATE OR REPLACE FUNCTION get_user_role()
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    user_role text;
+BEGIN
+    -- First try to get from user_roles table
+    SELECT role INTO user_role
+    FROM user_roles
+    WHERE user_id = auth.uid();
+    
+    -- If not found in table, check auth metadata
+    IF user_role IS NULL THEN
+        SELECT raw_user_meta_data->>'role' INTO user_role
+        FROM auth.users
+        WHERE id = auth.uid();
+    END IF;
+    
+    -- Default to 'admin' if no role is set (for backward compatibility)
+    RETURN COALESCE(user_role, 'admin');
+END;
+$$;
+
+-- ============================================================
+-- INSTRUCTIONS FOR SETTING UP ROLES
+-- ============================================================
+
+-- Method 1: Using user metadata (simpler - set in Supabase Dashboard):
+-- Go to Authentication > Users > Select User > Edit User > 
+-- Add to raw_user_meta_data: {"role": "appointments_only"}
+
+-- Method 2: Using SQL to set metadata:
+-- UPDATE auth.users 
+-- SET raw_user_meta_data = raw_user_meta_data || '{"role": "appointments_only"}'::jsonb
+-- WHERE email = 'receptionist@example.com';
+
+-- Method 3: Using user_roles table:
+-- INSERT INTO user_roles (user_id, role)
+-- VALUES ('USER_UUID_HERE', 'appointments_only')
+-- ON CONFLICT (user_id) DO UPDATE SET role = EXCLUDED.role;
