@@ -1,14 +1,86 @@
+import { useEffect, useRef, useState } from 'react';
+
 export default function VideoHero() {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        let hasPlayed = false;
+
+        const attemptPlay = async () => {
+            if (hasPlayed) return;
+            
+            try {
+                video.muted = true;
+                video.playsInline = true;
+                await video.play();
+                hasPlayed = true;
+                setIsPlaying(true);
+                console.log('Video playing');
+            } catch (error) {
+                console.log('Autoplay failed, waiting for user interaction:', error);
+            }
+        };
+
+        // Try to play when video is ready
+        const onCanPlay = () => attemptPlay();
+        video.addEventListener('canplay', onCanPlay);
+        video.addEventListener('loadedmetadata', onCanPlay);
+
+        // If autoplay fails, play on first user interaction
+        const playOnInteraction = () => {
+            if (!hasPlayed) {
+                attemptPlay();
+            }
+        };
+
+        const events = ['touchstart', 'click', 'scroll'];
+        events.forEach(event => {
+            document.addEventListener(event, playOnInteraction, { once: true, passive: true });
+        });
+
+        // Use Intersection Observer to play when visible
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && video.paused && !hasPlayed) {
+                        attemptPlay();
+                    }
+                });
+            },
+            { threshold: 0.25 }
+        );
+
+        observer.observe(video);
+
+        // Try to play immediately if video is ready
+        if (video.readyState >= 3) {
+            attemptPlay();
+        }
+
+        return () => {
+            video.removeEventListener('canplay', onCanPlay);
+            video.removeEventListener('loadedmetadata', onCanPlay);
+            observer.disconnect();
+        };
+    }, []);
+
     return (
         <section className="video-hero" id="home">
             <video
-                className="video-hero__video"
-                src="/hero_video.mp4"
+                ref={videoRef}
+                src="/hero_video_new.mp4"
                 autoPlay
-                muted
                 loop
+                muted
                 playsInline
-                disablePictureInPicture
+                preload="auto"
+                className="video-hero__video"
+                webkit-playsinline="true"
+                x5-playsinline="true"
             />
             {/* Optional tint to help any navbar overlays or content pop if you add text here later */}
             <div className="video-hero__overlay" />
