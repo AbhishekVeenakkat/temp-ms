@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { LayoutDashboard, Image as ImageIcon, MessageSquare, BookOpen, MessageCircleHeart, LogOut } from 'lucide-react';
+import { LayoutDashboard, Image as ImageIcon, MessageSquare, BookOpen, MessageCircleHeart, LogOut, Stethoscope, CalendarCheck } from 'lucide-react';
 import AdminMedia from './AdminMedia';
 import AdminFeed from './AdminFeed';
 import AdminBlog from './AdminBlog';
 import AdminAskDoctor from './AdminAskDoctor';
+import AdminDoctors from './AdminDoctors';
+import AdminAppointments from './AdminAppointments';
 
 const AdminDashboard = () => {
     const [user, setUser] = useState<any>(null);
@@ -52,6 +54,8 @@ const AdminDashboard = () => {
         { id: 'gallery', label: 'Gallery', icon: ImageIcon },
         { id: 'feed', label: 'Feed', icon: MessageSquare },
         { id: 'blogs', label: 'Blogs', icon: BookOpen },
+        { id: 'doctors', label: 'Doctors', icon: Stethoscope },
+        { id: 'appointments', label: 'Appointments', icon: CalendarCheck },
         { id: 'ask-doctor', label: 'Ask Doctor', icon: MessageCircleHeart },
     ];
 
@@ -98,8 +102,10 @@ const AdminDashboard = () => {
                 <div className="min-h-[500px]">
                     {activeTab === 'gallery' && <AdminMedia />}
                     {activeTab === 'feed' && <AdminFeed />}
-                    {activeTab === 'ask-doctor' && <AdminAskDoctor />}
                     {activeTab === 'blogs' && <AdminBlog />}
+                    {activeTab === 'doctors' && <AdminDoctors />}
+                    {activeTab === 'appointments' && <AdminAppointments />}
+                    {activeTab === 'ask-doctor' && <AdminAskDoctor />}
                 </div>
             </div>
         </div>
