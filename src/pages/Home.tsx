@@ -12,6 +12,7 @@ import DoctorsSection from '../components/DoctorsSection';
 import ServicesSection from '../components/ServicesSection';
 import FacilitiesSection from '../components/FacilitiesSection';
 import CtaSection from '../components/CtaSection';
+import AskDoctorFab from '../components/AskDoctorFab';
 
 function Home() {
     const location = useLocation();
@@ -50,6 +51,7 @@ function Home() {
             <ServicesSection />
             <FacilitiesSection />
             <CtaSection onNavigate={scrollToSection} />
+            <AskDoctorFab />
         </div>
     );
 }

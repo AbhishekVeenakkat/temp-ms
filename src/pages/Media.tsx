@@ -8,10 +8,20 @@ interface MediaItem {
     type: string;
     description: string;
     caption: string;
+    caption_id: string;
+    created_at: string;
+}
+
+interface MediaGroup {
+    caption_id: string;
+    caption: string;
+    description: string;
+    items: MediaItem[];
+    created_at: string;
 }
 
 const Media = () => {
-    const [items, setItems] = useState<MediaItem[]>([]);
+    const [groups, setGroups] = useState<MediaGroup[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
 
@@ -34,7 +44,31 @@ const Media = () => {
                 .order('created_at', { ascending: false });
 
             if (!error && data) {
-                setItems(data);
+                // Group items by caption_id
+                const groupedMap = new Map<string, MediaGroup>();
+                
+                data.forEach((item: MediaItem) => {
+                    const groupId = item.caption_id || item.id;
+                    
+                    if (!groupedMap.has(groupId)) {
+                        groupedMap.set(groupId, {
+                            caption_id: groupId,
+                            caption: item.caption,
+                            description: item.description,
+                            items: [],
+                            created_at: item.created_at
+                        });
+                    }
+                    
+                    groupedMap.get(groupId)!.items.push(item);
+                });
+                
+                // Convert to array and sort by created_at
+                const groupedArray = Array.from(groupedMap.values()).sort(
+                    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                );
+                
+                setGroups(groupedArray);
             }
             setLoading(false);
         };
@@ -57,43 +91,62 @@ const Media = () => {
                 <p className="page-subtitle">A collection of moments and facilities at Manassanthi Hospitals.</p>
             </header>
 
-            <div className="media-grid">
+            <div className="media-container" style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
                 {loading ? (
-                    Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="media-card animate-pulse">
-                            <div className="media-card__content bg-zinc-800" />
-                            <div className="media-card__info">
-                                <div className="h-4 bg-zinc-800 rounded w-1/2 mb-2" />
-                                <div className="h-3 bg-zinc-800 rounded w-3/4" />
+                    <div className="media-grid" style={{ padding: 0 }}>
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="media-card animate-pulse">
+                                <div className="media-card__content bg-zinc-800" />
                             </div>
-                        </div>
-                    ))
-                ) : items.length > 0 ? (
-                    items.map((item) => (
-                        <div key={item.id} className="media-card" onClick={() => setSelectedItem(item)}>
-                            <div className="media-card__content">
-                                {item.type === 'video' ? (
-                                    <div style={{
+                        ))}
+                    </div>
+                ) : groups.length > 0 ? (
+                    groups.map((group) => (
+                        <div key={group.caption_id} style={{ marginBottom: '24px' }}>
+                            {group.caption && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h2 style={{ 
+                                        fontSize: '24px', 
+                                        fontWeight: 700, 
+                                        color: 'var(--color-primary)',
+                                        marginBottom: '8px'
                                     }}>
-                                         <video src={item.url} className="media-card__img" style={{
-                                            height: "100%"
-                                        }} muted preload="metadata" />
-                                        <Play size={48} color="#ffffff00" fill="#ffffff" style={{
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '50%',
-                                            transform: 'translate(-50%, -50%)',
-                                            pointerEvents: 'none',
-                                        }} />
+                                        {group.caption}
+                                    </h2>
+                                    {group.description && (
+                                        <p style={{ 
+                                            fontSize: '15px', 
+                                            color: 'var(--color-muted)',
+                                            lineHeight: 1.6
+                                        }}>
+                                            {group.description}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                            <div className="media-grid" style={{ padding: 0 }}>
+                                {group.items.map((item) => (
+                                    <div key={item.id} className="media-card" onClick={() => setSelectedItem(item)}>
+                                        <div className="media-card__content">
+                                            {item.type === 'video' ? (
+                                                <div style={{}}>
+                                                    <video src={item.url} className="media-card__img" style={{
+                                                        height: "100%"
+                                                    }} muted preload="metadata" />
+                                                    <Play size={48} color="#ffffff00" fill="#ffffff" style={{
+                                                        position: 'absolute',
+                                                        top: '50%',
+                                                        left: '50%',
+                                                        transform: 'translate(-50%, -50%)',
+                                                        pointerEvents: 'none',
+                                                    }} />
+                                                </div>
+                                            ) : (
+                                                <img src={item.url} alt={item.caption} className="media-card__img" />
+                                            )}
                                         </div>
-                                   
-                                ) : (
-                                    <img src={item.url} alt={item.caption} className="media-card__img" />
-                                )}
-                            </div>
-                            <div className="media-card__info">
-                                <h3 className="media-card__caption">{item.caption || 'Gallery Item'}</h3>
-                                {item.description && <p className="media-card__desc">{item.description}</p>}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ))

@@ -1,4 +1,5 @@
 import { Calendar, MapPin, Clock, User, Users } from 'lucide-react';
+import AskDoctorCard from './AskDoctorCard';
 
 const doctors = [
     {
@@ -139,6 +140,7 @@ export default function DoctorsSection() {
                             </div>
                         ))}
                     </div>
+                    <AskDoctorCard />
                 </div>
             </div>
         </section>

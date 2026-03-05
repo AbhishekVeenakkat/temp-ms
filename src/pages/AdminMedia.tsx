@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Upload, X, Trash2, Edit2, Image as ImageIcon, Film, Plus, ArrowRight } from 'lucide-react';
+import { Upload, X, Trash2, Edit2, Image as ImageIcon, Film, Plus, ArrowRight, Eye } from 'lucide-react';
 
 interface MediaItem {
     id: string;
@@ -8,14 +8,24 @@ interface MediaItem {
     type: string;
     description: string;
     caption: string;
+    caption_id: string;
+    created_at: string;
+}
+
+interface MediaGroup {
+    caption_id: string;
+    caption: string;
+    description: string;
+    items: MediaItem[];
     created_at: string;
 }
 
 const AdminMedia = () => {
-    const [items, setItems] = useState<MediaItem[]>([]);
+    const [groups, setGroups] = useState<MediaGroup[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
 
     // Form state
     const [caption, setCaption] = useState('');
@@ -33,7 +43,33 @@ const AdminMedia = () => {
             .select('*')
             .order('created_at', { ascending: false });
 
-        if (!error && data) setItems(data);
+        if (!error && data) {
+            // Group items by caption_id
+            const groupedMap = new Map<string, MediaGroup>();
+            
+            data.forEach((item: MediaItem) => {
+                const groupId = item.caption_id || item.id;
+                
+                if (!groupedMap.has(groupId)) {
+                    groupedMap.set(groupId, {
+                        caption_id: groupId,
+                        caption: item.caption,
+                        description: item.description,
+                        items: [],
+                        created_at: item.created_at
+                    });
+                }
+                
+                groupedMap.get(groupId)!.items.push(item);
+            });
+            
+            // Convert to array and sort by created_at
+            const groupedArray = Array.from(groupedMap.values()).sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            
+            setGroups(groupedArray);
+        }
         setLoading(false);
     };
 
@@ -134,13 +170,34 @@ const AdminMedia = () => {
                 </button>
             </div>
 
-            {/* Gallery Grid - using custom CSS class */}
-            <div className="admin-media-grid">
-                {loading ? (
-                    Array.from({ length: 12 }).map((_, i) => (
-                        <div key={i} className="admin-media-thumbnail" style={{ background: '#f1f5f9' }} />
-                    ))
-                ) : items.map(item => (
+            {/* Gallery Grid - grouped by upload */}
+            <div className="admin-media-container">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+                    {loading ? (
+                        <div className="admin-media-grid">
+                            {Array.from({ length: 12 }).map((_, i) => (
+                                <div key={i} className="admin-media-thumbnail" style={{ background: '#f1f5f9' }} />
+                            ))}
+                        </div>
+                    ) : groups.map(group => (
+                        <div key={group.caption_id}>
+                            {group.caption && (
+                                <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '2px solid #f1f5f9' }}>
+                                    <h3 style={{ fontSize: 18, fontWeight: 700, color: '#133882', marginBottom: 6 }}>
+                                        {group.caption}
+                                    </h3>
+                                    {group.description && (
+                                        <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
+                                            {group.description}
+                                        </p>
+                                    )}
+                                    <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, marginTop: 4, display: 'block' }}>
+                                        {group.items.length} {group.items.length === 1 ? 'item' : 'items'}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="admin-media-grid">
+                            {group.items.map(item => (
                     <div key={item.id} className="admin-media-thumbnail">
                         {item.type === 'video' ? (
                             <div className="admin-media-thumbnail__video-placeholder">
@@ -151,16 +208,43 @@ const AdminMedia = () => {
                             <img src={item.url} alt={item.caption || ''} />
                         )}
                         <div className="admin-media-thumbnail__overlay">
-                            <button
-                                onClick={() => handleDelete(item)}
-                                className="admin-media-thumbnail__delete"
-                                title="Delete"
-                            >
-                                <Trash2 size={14} />
-                            </button>
+                            <div className="admin-media-thumbnail__actions">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPreviewItem(item);
+                                    }}
+                                    className="admin-media-thumbnail__btn admin-media-thumbnail__btn--preview"
+                                    title="Preview"
+                                >
+                                    <Eye size={15} />
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(item);
+                                    }}
+                                    className="admin-media-thumbnail__btn admin-media-thumbnail__btn--delete"
+                                    title="Delete"
+                                >
+                                    <Trash2 size={15} />
+                                </button>
+                            </div>
+                            <div className="admin-media-thumbnail__info">
+                                {item.caption && (
+                                    <div className="admin-media-thumbnail__caption">{item.caption}</div>
+                                )}
+                                {item.description && (
+                                    <div className="admin-media-thumbnail__description">{item.description}</div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Upload Modal */}
@@ -282,6 +366,77 @@ const AdminMedia = () => {
                                         <ArrowRight size={18} />
                                     </>
                                 )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Preview Modal */}
+            {previewItem && (
+                <div className="admin-modal-overlay" onClick={() => setPreviewItem(null)}>
+                    <div className="admin-modal-backdrop" />
+                    <div 
+                        className="admin-modal-box" 
+                        style={{ maxWidth: '90vw', maxHeight: '90vh', overflow: 'hidden' }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="admin-modal-body" style={{ padding: 0 }}>
+                            {previewItem.type === 'video' ? (
+                                <video 
+                                    src={previewItem.url} 
+                                    controls
+                                    style={{ 
+                                        width: '100%', 
+                                        maxHeight: '70vh',
+                                        display: 'block',
+                                        backgroundColor: '#000'
+                                    }}
+                                />
+                            ) : (
+                                <img 
+                                    src={previewItem.url} 
+                                    alt={previewItem.caption || ''}
+                                    style={{ 
+                                        width: '100%', 
+                                        maxHeight: '70vh',
+                                        objectFit: 'contain',
+                                        display: 'block',
+                                        backgroundColor: '#000'
+                                    }}
+                                />
+                            )}
+                            {(previewItem.caption || previewItem.description) && (
+                                <div style={{ padding: 24, borderTop: '1px solid #f1f5f9' }}>
+                                    {previewItem.caption && (
+                                        <h3 style={{ 
+                                            fontSize: 18, 
+                                            fontWeight: 700, 
+                                            color: '#133882',
+                                            marginBottom: 8 
+                                        }}>
+                                            {previewItem.caption}
+                                        </h3>
+                                    )}
+                                    {previewItem.description && (
+                                        <p style={{ 
+                                            fontSize: 14, 
+                                            color: '#64748b',
+                                            lineHeight: 1.6 
+                                        }}>
+                                            {previewItem.description}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        <div className="admin-modal-footer">
+                            <button 
+                                onClick={() => setPreviewItem(null)}
+                                className="admin-btn admin-btn--ghost"
+                                style={{ flex: 1, justifyContent: 'center' }}
+                            >
+                                Close
                             </button>
                         </div>
                     </div>

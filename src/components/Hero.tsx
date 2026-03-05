@@ -36,14 +36,14 @@ export default function Hero({ onNavigate }: HeroProps) {
                     </div>
 
                     <h1 className="hero__title">
-                        <span className="reveal-text reveal-text--delay" style={{ animationDelay: '0.1s' }}>Healing Minds,</span><br />
-                        <strong className="reveal-text reveal-text--delay" style={{ animationDelay: '0.2s' }}>Restoring Lives</strong>
+                        <span className="reveal-text reveal-text--delay" style={{ animationDelay: '0.1s' }}>Care that listens,</span><br />
+                        <strong className="reveal-text reveal-text--delay" style={{ animationDelay: '0.2s' }}>Treatment that works.</strong>
                     </h1>
 
                     <p className="hero__subtitle">
-                        <span className="reveal-text">Manassanthi Hospitals</span> delivers safe, ethical, and evidence-based psychiatric care
+                        <span className="reveal-text">Manassanthi Hospitals</span> delivers <strong>science-led, person-centered</strong> psychiatric care
                         in a calm healing environment — supporting each person's recovery with
-                        compassion, respect, and confidentiality.
+                        evidence-based treatment, compassion, respect, and confidentiality.
                     </p>
 
                     <div className="hero__actions">

@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Media from './pages/Media';
 import Feed from './pages/Feed';
 import Blog from './pages/Blog';
+import AskDoctor from './pages/AskDoctor';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import NotFound from './pages/NotFound';
@@ -44,6 +45,7 @@ const AppContent = () => {
                 <Route path="/media" element={<Media />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/ask-doctor" element={<AskDoctor />} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="*" element={<NotFound />} />

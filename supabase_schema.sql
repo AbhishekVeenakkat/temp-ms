@@ -30,10 +30,23 @@ CREATE TABLE blogs (
     photo_url TEXT
 );
 
+-- Ask Doctor Table
+CREATE TABLE ask_doctor (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    question TEXT NOT NULL,
+    name TEXT,
+    email TEXT,
+    phone TEXT,
+    status TEXT DEFAULT 'pending', -- 'pending', 'answered', 'archived'
+    admin_notes TEXT
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE gallery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feed ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blogs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ask_doctor ENABLE ROW LEVEL SECURITY;
 
 -- Create policies (Public Read, Admin Write)
 -- Note: Admin write requires authentication, which we'll handle via Supabase Auth
@@ -42,6 +55,10 @@ ALTER TABLE blogs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public Read Gallery" ON gallery FOR SELECT USING (true);
 CREATE POLICY "Public Read Feed" ON feed FOR SELECT USING (true);
 CREATE POLICY "Public Read Blogs" ON blogs FOR SELECT USING (true);
+
+-- Public Insert for Ask Doctor (anyone can submit)
+CREATE POLICY "Public Insert Ask Doctor" ON ask_doctor FOR INSERT 
+    WITH CHECK (true);
 
 -- Admin Access (All actions for authenticated users)
 CREATE POLICY "Admin CRUD Gallery" ON gallery FOR ALL 
@@ -53,6 +70,10 @@ CREATE POLICY "Admin CRUD Feed" ON feed FOR ALL
     WITH CHECK (auth.role() = 'authenticated');
 
 CREATE POLICY "Admin CRUD Blogs" ON blogs FOR ALL 
+    USING (auth.role() = 'authenticated') 
+    WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Admin CRUD Ask Doctor" ON ask_doctor FOR ALL 
     USING (auth.role() = 'authenticated') 
     WITH CHECK (auth.role() = 'authenticated');
 
