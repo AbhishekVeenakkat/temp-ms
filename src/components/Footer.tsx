@@ -38,7 +38,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             />
             <div className="footer__iso-wrapper">
               <span className="footer__iso-badge">
-                An ISO 9001:2015 Certified Hospital
+                An ISO 9001:2015 Certified Hospitals
               </span>
             </div>
             <p className="footer__brand-desc">
