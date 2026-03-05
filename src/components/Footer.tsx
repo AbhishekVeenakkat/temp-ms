@@ -31,21 +31,8 @@ export default function Footer({ onNavigate }: FooterProps) {
             <div className="footer__brand-tag">
               Compassionate Mental Healthcare
             </div>
-            <div style={{ marginTop: "12px", marginBottom: "12px" }}>
-              <span
-                style={{
-                  display: "inline-block",
-                  fontSize: "11px",
-                  color: "rgba(255,255,255,0.9)",
-                  fontWeight: 700,
-                  padding: "6px 12px",
-                  background: "rgba(104,220,227,0.15)",
-                  border: "1px solid rgba(104,220,227,0.3)",
-                  borderRadius: "8px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
+            <div className="footer__iso-wrapper">
+              <span className="footer__iso-badge">
                 An ISO 9001:2015 Certified Hospital
               </span>
             </div>
@@ -72,7 +59,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           </div>
 
           {/* Navigation */}
-          <div>
+          <div className="footer__column">
             <div className="footer__col-title">Navigation</div>
             <ul className="footer__links">
               {navLinks.map((l) => (
@@ -89,7 +76,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           </div>
 
           {/* More Section */}
-          <div>
+          <div className="footer__column">
             <div className="footer__col-title">More</div>
             <ul className="footer__links">
               <li>
@@ -121,7 +108,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="footer__column">
             <div className="footer__col-title">Contact</div>
             <div className="footer__contact-item">
               <MapPin size={16} className="footer__contact-icon" />
@@ -137,27 +124,11 @@ export default function Footer({ onNavigate }: FooterProps) {
               <Mail size={16} className="footer__contact-icon" />
               <span>dr.aneesmanassanthi@gmail.com</span>
             </div>
-            <div
-              style={{
-                marginTop: "16px",
-                padding: "12px 16px",
-                background: "rgba(104,220,227,0.1)",
-                borderRadius: "10px",
-                border: "1px solid rgba(104,220,227,0.2)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "rgba(255,255,255,0.6)",
-                  marginBottom: "4px",
-                }}
-              >
+            <div className="footer__overseas-box">
+              <div className="footer__overseas-label">
                 Overseas Consultations
               </div>
-              <div
-                style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)" }}
-              >
+              <div className="footer__overseas-text">
                 Sharjah & Doha — 1st Wed–Sat each month
               </div>
             </div>

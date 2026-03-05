@@ -791,8 +791,10 @@ a {
   height: 100px;
   border-radius: 18px;
   object-fit: cover;
+  -webkit-filter: grayscale(100%);
   filter: grayscale(100%);
   flex-shrink: 0;
+  display: block;
 }
 
 .about__founder-name {
@@ -862,11 +864,17 @@ a {
   height: 80px;
   border-radius: 16px;
   object-fit: cover;
+  -webkit-filter: grayscale(100%);
   filter: grayscale(100%);
   flex-shrink: 0;
   border: 2px solid var(--color-white);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.4s ease;
+  display: block;
+  background-color: #f5f5f5;
+  image-rendering: auto;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .doctor-card:hover .doctor-card__img {
@@ -1281,6 +1289,25 @@ a {
   margin-bottom: 16px;
 }
 
+.footer__iso-wrapper {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.footer__iso-badge {
+  display: inline-block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
+  padding: 6px 12px;
+  background: rgba(104, 220, 227, 0.15);
+  border: 1px solid rgba(104, 220, 227, 0.3);
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+}
+
 .footer__brand-desc {
   font-size: 14px;
   line-height: 1.65;
@@ -1351,10 +1378,35 @@ a {
   line-height: 1.45;
 }
 
+.footer__contact-item span {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 .footer__contact-icon {
   color: var(--color-accent);
   flex-shrink: 0;
   margin-top: 1px;
+}
+
+.footer__overseas-box {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(104, 220, 227, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(104, 220, 227, 0.2);
+}
+
+.footer__overseas-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 4px;
+}
+
+.footer__overseas-text {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
 }
 
 .footer__bottom {
@@ -1404,8 +1456,32 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .about__founder-img {
+    width: 90px;
+    height: 90px;
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+  }
+
+  .about__founders {
+    margin-top: 40px;
+  }
+
+  .doctor-card__img {
+    width: 75px;
+    height: 75px;
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+  }
+
   .footer__top {
     grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+
+  .footer__column {
+    padding-left: 20px;
   }
 
   .section {
@@ -1418,6 +1494,82 @@ a {
 
   .footer {
     padding: 60px 30px 30px;
+  }
+
+  .footer__brand-name {
+    font-size: 17px;
+  }
+
+  .footer__brand-desc {
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.65;
+  }
+
+  .footer__iso-wrapper {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .footer__iso-badge {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+  .footer__contact-item {
+    font-size: 13px;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .footer__col-title {
+    font-size: 12px;
+  }
+
+  .footer__overseas-box {
+    padding: 11px 14px;
+    margin-top: 14px;
+  }
+
+  .footer__overseas-label {
+    font-size: 11px;
+  }
+
+  .footer__overseas-text {
+    font-size: 12px;
+  }
+
+  .footer__links {
+    gap: 10px;
+  }
+
+  .footer__link {
+    font-size: 13px;
+  }
+
+  .footer__bottom {
+    padding-top: 26px;
+  }
+}
+
+@media (max-width: 900px) {
+  .footer__top {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    margin-bottom: 44px;
+  }
+
+  .footer {
+    padding: 56px 28px 28px;
+  }
+
+  .footer__column {
+    padding-left: 0;
+  }
+
+  .footer__contact-item {
+    font-size: 13px;
+    margin-bottom: 15px;
   }
 }
 
@@ -1473,12 +1625,26 @@ a {
     grid-template-columns: 1fr;
   }
 
+  .about__founder-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .about__founder {
+    gap: 14px;
+  }
+
   .hero__stats {
     grid-template-columns: 1fr 1fr;
   }
 
   .doctors__grid {
     grid-template-columns: 1fr;
+  }
+
+  .doctor-card__img {
+    width: 70px;
+    height: 70px;
   }
 
   .services__list {
@@ -1491,12 +1657,58 @@ a {
 
   .footer__top {
     grid-template-columns: 1fr;
+    gap: 36px;
+    margin-bottom: 40px;
+  }
+
+  .footer {
+    padding: 50px 24px 30px;
+  }
+
+  .footer__brand-name {
+    font-size: 17px;
+  }
+
+  .footer__brand-desc {
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+
+  .footer__iso-wrapper {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .footer__iso-badge {
+    font-size: 10px;
+    padding: 5px 11px;
+  }
+
+  .footer__contact-item {
+    font-size: 13px;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .footer__col-title {
+    font-size: 12px;
+    margin-bottom: 14px;
+  }
+
+  .footer__links {
+    gap: 10px;
+  }
+
+  .footer__overseas-box {
+    margin-top: 16px;
+    border-radius: 8px;
   }
 
   .footer__bottom {
     flex-direction: column;
     gap: 12px;
     text-align: center;
+    padding-top: 24px;
   }
 
   .cta-section__title {
@@ -1533,6 +1745,116 @@ a {
   .support-grid {
     grid-template-columns: 1fr;
   }
+
+  .about__founder-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+  }
+
+  .about__founder {
+    gap: 12px;
+  }
+
+  .doctor-card__img {
+    width: 65px;
+    height: 65px;
+    border-radius: 14px;
+  }
+
+  .footer {
+    padding: 40px 16px 24px;
+  }
+
+  .footer__top {
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+
+  .footer__brand-name {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .footer__brand-tag {
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
+
+  .footer__iso-wrapper {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .footer__iso-badge {
+    font-size: 9px;
+    padding: 4px 9px;
+    border-radius: 6px;
+  }
+
+  .footer__brand-desc {
+    font-size: 12.5px;
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+
+  .footer__socials {
+    gap: 12px;
+  }
+
+  .footer__social-link {
+    width: 34px;
+    height: 34px;
+  }
+
+  .footer__contact-item {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+
+  .footer__contact-icon {
+    margin-top: 2px;
+  }
+
+  .footer__overseas-box {
+    padding: 10px 12px;
+    margin-top: 12px;
+    border-radius: 8px;
+  }
+
+  .footer__overseas-label {
+    font-size: 10.5px;
+    margin-bottom: 3px;
+  }
+
+  .footer__overseas-text {
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+
+  .footer__col-title {
+    font-size: 11.5px;
+    margin-bottom: 12px;
+  }
+
+  .footer__links {
+    gap: 8px;
+  }
+
+  .footer__link {
+    font-size: 12.5px;
+  }
+
+  .footer__bottom {
+    padding-top: 20px;
+  }
+
+  .footer__copyright,
+  .footer__mhca {
+    font-size: 11px;
+  }
 }
 
 /* ============================================================
@@ -1557,7 +1879,6 @@ a {
   transform: translate(-50%, -50%);
   object-fit: cover;
   pointer-events: none;
-  /* Disables interaction */
 }
 
 .video-hero__overlay {
@@ -1692,20 +2013,71 @@ a {
 }
 
 @media (max-width: 1024px) {
+  .info-cards {
+    padding: 40px 30px;
+  }
+
   .info-cards__grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .info-cards {
+    padding: 30px 24px;
+  }
+
+  .info-cards__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .info-card {
+    gap: 16px;
+  }
+
+  .info-card__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .info-card:not(:last-child)::after {
+    display: none;
   }
 }
 
 @media (max-width: 640px) {
   .info-cards {
     margin-top: -30px;
-    padding: 20px 24px;
+    padding: 20px 20px;
   }
 
   .info-cards__grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
+  }
+
+  .info-card {
+    padding: 16px 12px;
+    gap: 14px;
+  }
+
+  .info-card__icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .info-card__title {
+    font-size: 15px;
+  }
+
+  .info-card__text {
+    font-size: 13px;
+  }
+
+  .info-card__subtext {
+    font-size: 12px;
   }
 }
 

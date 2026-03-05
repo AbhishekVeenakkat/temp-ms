@@ -70,13 +70,15 @@ export default function AboutSection() {
                     <div className="about__founders-title">
                         Our Founders
                     </div>
-
                     {founders.map((f, i) => (
                         <div className="about__founder" key={i}>
                             <img
                                 src={f.image}
                                 alt={f.name}
                                 className="about__founder-img"
+                                loading="eager"
+                                decoding="async"
+                                referrerPolicy="no-referrer"
                             />
                             <div>
                                 <div className="about__founder-name">{f.name}</div>

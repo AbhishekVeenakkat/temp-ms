@@ -151,6 +151,19 @@ export default function DoctorsSection() {
                                                 src={doc.photo_url}
                                                 alt={doc.name}
                                                 className="doctor-card__img"
+                                                loading="eager"
+                                                decoding="async"
+                                                crossOrigin="anonymous"
+                                                referrerPolicy="no-referrer"
+                                                style={{
+                                                    width: '80px',
+                                                    height: '80px',
+                                                    display: 'block'
+                                                }}
+                                                onError={(e) => {
+                                                    console.error('Failed to load doctor image:', doc.photo_url);
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
                                             />
                                         ) : (
                                             <div 
