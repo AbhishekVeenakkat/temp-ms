@@ -117,7 +117,7 @@ a {
   width: calc(100% - 48px);
   max-width: 1100px;
   z-index: 100;
-  padding: 0 24px;
+  padding: 0 15px;
   height: 64px;
   display: flex;
   align-items: center;
@@ -179,7 +179,7 @@ a {
 }
 
 .navbar__logo-image {
-  height: 28px;
+  height: 40px;
   width: auto;
   transition: filter 0.3s ease;
   /* Converts black to #133882 (primary blue color) */

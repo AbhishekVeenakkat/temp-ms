@@ -27,10 +27,15 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="footer__top">
           {/* Brand */}
           <div>
-            <div className="footer__brand-name">Manassanthi Hospital</div>
-            <div className="footer__brand-tag">
-              Compassionate Mental Healthcare
-            </div>
+            <img 
+              src="/manassanthi_full_white.png" 
+              alt="Manassanthi Hospital" 
+              style={{
+                height: 'auto',
+                width: '260px',
+                marginBottom: '16px'
+              }}
+            />
             <div className="footer__iso-wrapper">
               <span className="footer__iso-badge">
                 An ISO 9001:2015 Certified Hospital

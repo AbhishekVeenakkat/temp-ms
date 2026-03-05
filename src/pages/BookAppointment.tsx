@@ -309,6 +309,12 @@ function BookAppointment() {
                                     className="form-input"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
+                                    onClick={(e) => {
+                                        const input = e.currentTarget;
+                                        if (input && 'showPicker' in input) {
+                                            (input as any).showPicker();
+                                        }
+                                    }}
                                     min={minDate}
                                     required
                                     disabled={!selectedDoctor}

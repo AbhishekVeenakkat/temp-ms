@@ -121,6 +121,7 @@ export default function Navbar({ onNavigate }: NavbarProps) {
                     setSocialOpen(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}>
+                    <img src="/manassanthi_emblem.svg" alt="" className="navbar__logo-image" style={{ height: '45px', marginRight: '5px' }} />
                     <img src="/manassanthi_logo.svg" alt="Manassanthi Hospitals" className="navbar__logo-image" />
                 </Link>
 
