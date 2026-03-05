@@ -27,17 +27,29 @@ export default function VideoHero() {
                             margin: '0',
                         }}
                     />
-                    <div
-                        className="reveal-text reveal-text--delay"
-                        style={{
-                            fontSize: 'clamp(14px, 2.5vw, 20px)',
-                            fontWeight: 400,
-                            letterSpacing: '0.02em',
-                            marginTop: '0px',
-                            opacity: 0
-                        }}
-                    >
-                        We Nurture Minds. We Restore Lives.
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div
+                            className="reveal-text reveal-text--delay"
+                            style={{
+                                fontSize: 'clamp(14px, 2.5vw, 20px)',
+                                fontWeight: 400,
+                                letterSpacing: '0.02em',
+                                opacity: 0
+                            }}
+                        >
+                            We Nurture Minds.
+                        </div>
+                        <div
+                            className="reveal-text reveal-text--delay-2"
+                            style={{
+                                fontSize: 'clamp(14px, 2.5vw, 20px)',
+                                fontWeight: 400,
+                                letterSpacing: '0.02em',
+                                opacity: 0
+                            }}
+                        >
+                            We Restore Lives.
+                        </div>
                     </div>
                 </div>
             </div>

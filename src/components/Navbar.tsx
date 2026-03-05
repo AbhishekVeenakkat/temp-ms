@@ -229,7 +229,7 @@ export default function Navbar({ onNavigate }: NavbarProps) {
 
                 <Link
                     to="/book-appointment"
-                    className="navbar__cta"
+                    className={`navbar__cta ${isGlass ? 'navbar__cta--glass' : ''}`}
                     style={{ display: menuOpen ? 'none' : undefined }}
                     onClick={() => { setMenuOpen(false); setMoreOpen(false); setSocialOpen(false); }}
                 >
